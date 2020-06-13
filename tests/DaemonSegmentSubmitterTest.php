@@ -29,7 +29,6 @@ class DaemonSegmentSubmitterTest extends TestCase
     public function doTearDown()
     {
         socket_close($this->socket);
-        parent::tearDown();
     }
 
     public function testSubmitsToDaemon()
@@ -108,7 +107,7 @@ class DaemonSegmentSubmitterTest extends TestCase
      * @param int $number
      * @return array
      */
-    private function receivePackets(int $number): array
+    private function receivePackets($number)
     {
         $from = '';
         $port = 0;
