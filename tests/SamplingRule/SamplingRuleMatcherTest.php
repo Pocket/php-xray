@@ -6,11 +6,6 @@ use Pkerrigan\Xray\Trace;
 
 class SamplingRuleMatcherTest extends TestCase
 {
-
-    protected function setUp() : void
-    {
-        parent::setUp();
-    }
     
     /** @dataProvider provideMatch */
     public function testMatch($trace, $samplingRule, $expected)
