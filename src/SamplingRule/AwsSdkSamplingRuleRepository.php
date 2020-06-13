@@ -29,7 +29,7 @@ class AwsSdkSamplingRuleRepository implements SamplingRuleRepository
     }
 
 
-    public function getAll(): array
+    public function getAll()
     {
         try {
             $samplingRules = [];
