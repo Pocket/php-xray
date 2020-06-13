@@ -7,7 +7,6 @@ php:
 
 before_script:
   - composer self-update
-  - composer require codeclimate/php-test-reporter:dev-master --dev
   - composer install
 
 script:
