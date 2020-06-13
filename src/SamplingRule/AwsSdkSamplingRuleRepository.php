@@ -28,6 +28,7 @@ class AwsSdkSamplingRuleRepository implements SamplingRuleRepository
         $this->fallbackSamplingRule = $fallbackSamplingRule;
     }
 
+
     public function getAll(): array
     {
         try {

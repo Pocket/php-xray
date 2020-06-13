@@ -6,19 +6,16 @@ use Pkerrigan\Xray\Trace;
 
 class SamplingRuleMatcherTest extends TestCase
 {
-    /** @var SamplingRuleMatcher */
-    private $samplingRuleMatcher;
-    
-    protected function setUp()
+
+    protected function setUp() : void
     {
         parent::setUp();
-        $this->samplingRuleMatcher = new SamplingRuleMatcher();
     }
     
     /** @dataProvider provideMatch */
     public function testMatch($trace, $samplingRule, $expected)
     {
-        $this->assertEquals($expected, $this->samplingRuleMatcher->match($trace, $samplingRule));
+        $this->assertEquals($expected, SamplingRuleMatcher::match($trace, $samplingRule));
     }
     
     public function provideMatch()
@@ -44,7 +41,7 @@ class SamplingRuleMatcherTest extends TestCase
     /** @dataProvider provideMatchFirst */
     public function testMatchFirst($trace, $samplingRules, $expected)
     {
-        $this->assertEquals($expected, $this->samplingRuleMatcher->matchFirst($trace, $samplingRules));
+        $this->assertEquals($expected, SamplingRuleMatcher::matchFirst($trace, $samplingRules));
     }
     
     public function provideMatchFirst()
@@ -102,7 +99,7 @@ class SamplingRuleMatcherTest extends TestCase
      */
     public function testStringMatchesCriteria($criteria, $input, $expected)
     {
-        $this->assertEquals($expected, $this->samplingRuleMatcher->stringMatchesCriteria($input, $criteria));
+        $this->assertEquals($expected, SamplingRuleMatcher::stringMatchesCriteria($input, $criteria));
     }
     
     public function provideStringMatchesCriteria()
