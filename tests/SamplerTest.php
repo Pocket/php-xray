@@ -35,7 +35,7 @@ class SamplerTest extends TestCase
         ));
     }
 
-    public function testGetMatchedRuleReturnsRull()
+    public function testGetMatchedRuleReturnsRule()
     {
         $samplerCache = $this->createMock(SamplerCache::class);
 

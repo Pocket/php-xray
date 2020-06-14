@@ -105,7 +105,7 @@ class Segment implements JsonSerializable
 
         return $this;
     }
-    
+
     /**
      * @return string|null
      */
@@ -113,7 +113,7 @@ class Segment implements JsonSerializable
     {
         return $this->name;
     }
-    
+
     /**
      * @return string|null
      */
@@ -141,6 +141,42 @@ class Segment implements JsonSerializable
     {
         $this->fault = $fault;
 
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getStartTime()
+    {
+        return $this->startTime;
+    }
+
+    /**
+     * @param float $startTime
+     * @return Segment
+     */
+    public function setStartTime($startTime)
+    {
+        $this->startTime = $startTime;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getEndTime()
+    {
+        return $this->endTime;
+    }
+
+    /**
+     * @param float $endTime
+     * @return Segment
+     */
+    public function setEndTime($endTime)
+    {
+        $this->endTime = $endTime;
         return $this;
     }
 
