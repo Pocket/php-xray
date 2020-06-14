@@ -54,6 +54,10 @@ class Segment implements JsonSerializable
     /**
      * @var bool
      */
+    protected $throttle = false;
+    /**
+     * @var bool
+     */
     protected $sampled = false;
     /**
      * @var bool
@@ -170,6 +174,24 @@ class Segment implements JsonSerializable
     public function isFault()
     {
         return $this->fault;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isThrottle()
+    {
+        return $this->throttle;
+    }
+
+    /**
+     * @param bool $throttle
+     * @return Segment
+     */
+    public function setThrottle($throttle)
+    {
+        $this->throttle = $throttle;
+        return $this;
     }
 
     /**
@@ -423,6 +445,7 @@ class Segment implements JsonSerializable
             'type' => $this->getType(),
             'fault' => $this->fault,
             'error' => $this->error,
+            'throttle' => $this->throttle,
             'annotations' => empty($this->annotations) ? null : $this->annotations,
             'metadata' => empty($this->metadata) ? null : $this->metadata
         ]);
