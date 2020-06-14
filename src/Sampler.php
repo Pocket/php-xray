@@ -31,6 +31,7 @@ class Sampler
         $matchedRule = $this->getMatchedRule($trace);
 
         if ($matchedRule !== null) {
+            $trace->setMatchedRule($matchedRule);
             return $this->processMatchedRule($matchedRule, $now);
         } else {
             // TODO: Add a local sampler if we care, general consensus is if we can't load rules, dont sample

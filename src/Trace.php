@@ -25,6 +25,10 @@ class Trace extends Segment
     /**
      * @var string
      */
+    private $serviceEnvironment;
+    /**
+     * @var string
+     */
     private $user;
 
     /**
@@ -78,6 +82,17 @@ class Trace extends Segment
     }
 
     /**
+     * @param string $serviceEnvironment
+     * @return static
+     */
+    public function setServiceEnvironment($serviceEnvironment)
+    {
+        $this->serviceEnvironment = $serviceEnvironment;
+
+        return $this;
+    }
+
+    /**
      * @param string $user
      * @return static
      */
@@ -113,16 +128,12 @@ class Trace extends Segment
     /**
      * @inheritdoc
      */
-    public function begin($samplePercentage = 10)
+    public function begin()
     {
         parent::begin();
 
         if (is_null($this->traceId)) {
             $this->generateTraceId();
-        }
-
-        if (!$this->isSampled()) {
-            $this->sampled = Utils::randomPossibility($samplePercentage);
         }
 
         return $this;
@@ -136,7 +147,10 @@ class Trace extends Segment
         $data = parent::jsonSerialize();
 
         $data['http'] = $this->serialiseHttpData();
-        $data['service'] = empty($this->serviceVersion) ? null : ['version' => $this->serviceVersion];
+        $data['service'] = array_filter([
+            'version' => $this->serviceVersion,
+            'environment' => $this->serviceEnvironment
+        ]);
         $data['user'] = $this->user;
 
         return array_filter($data);

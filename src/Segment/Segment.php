@@ -3,6 +3,8 @@
 namespace Pkerrigan\Xray\Segment;
 
 use JsonSerializable;
+use Pkerrigan\Xray\Sampling\Rule;
+use Pkerrigan\Xray\Segment\Plugins\Plugin;
 use Pkerrigan\Xray\Submission\SegmentSubmitter;
 
 /**
@@ -70,6 +72,16 @@ class Segment implements JsonSerializable
      */
     private $lastOpenSegment = 0;
 
+    /**
+     * @var null|string
+     */
+    private $origin = null;
+
+    /**
+     * @var null | string[]
+     */
+    private $aws = [];
+
     public function __construct()
     {
         $this->id = bin2hex(random_bytes(8));
@@ -134,6 +146,14 @@ class Segment implements JsonSerializable
     }
 
     /**
+     * @return boolean
+     */
+    public function isError()
+    {
+        return $this->error;
+    }
+
+    /**
      * @param bool $fault
      * @return static
      */
@@ -142,6 +162,14 @@ class Segment implements JsonSerializable
         $this->fault = $fault;
 
         return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isFault()
+    {
+        return $this->fault;
     }
 
     /**
@@ -308,6 +336,57 @@ class Segment implements JsonSerializable
         return $this;
     }
 
+
+    /**
+     * @param Plugin $plugin
+     * @return static
+     */
+    public function addPluginData(Plugin $plugin)
+    {
+        $this->aws = array_merge_recursive($this->aws, $plugin->getData());
+
+        return $this;
+    }
+
+    /*******
+     * Plugins
+     *******/
+
+    /**
+     * @return string|null
+     */
+    public function getOrigin()
+    {
+        return $this->origin;
+    }
+
+    /**
+     * @param string|null $origin
+     * @return Segment
+     */
+    public function setOrigin($origin)
+    {
+        $this->origin = $origin;
+        return $this;
+    }
+
+    /**
+     * Sets matched rule
+     *
+     * @param Rule $rule
+     * @return Segment
+     */
+    public function setMatchedRule(Rule $rule)
+    {
+        $this->aws = array_merge_recursive($this->aws, [
+            'xray' => [
+                'rule_name' => $rule->getName()
+            ]
+        ]);
+
+        return $this;
+    }
+
     /**
      * @return Segment
      */
@@ -328,6 +407,8 @@ class Segment implements JsonSerializable
     public function jsonSerialize()
     {
         return array_filter([
+            'aws' => $this->aws,
+            'origin' => $this->origin,
             'id' => $this->id,
             'parent_id' => $this->parentId,
             'trace_id' => $this->traceId,

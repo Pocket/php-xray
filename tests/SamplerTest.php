@@ -57,6 +57,34 @@ class SamplerTest extends TestCase
         ));
     }
 
+    public function testSerializesWithMatchedRule()
+    {
+        $samplerCache = $this->createMock(SamplerCache::class);
+
+        $rule = (new Rule())
+            ->setName('Rulename')
+            ->setHost('test.com');
+
+        $samplerCache
+            ->expects($this->once())
+            ->method('getAllRules')
+            ->willReturn([$rule]);
+
+        $trace = (new Trace())
+            ->begin()
+            ->setName('Test')
+            ->setUrl('https://test.com')
+            ->end();
+
+        $sampler = new Sampler($samplerCache);
+        $this->assertNotNull($sampler->shouldSample($trace));
+
+        $serialized = $trace->jsonSerialize();
+
+        $this->assertArrayHasKey('xray', $serialized['aws']);
+        $this->assertEquals('Rulename', $serialized['aws']['xray']['rule_name']);
+    }
+
 
     public function testShouldSampleRuleBorrows()
     {
