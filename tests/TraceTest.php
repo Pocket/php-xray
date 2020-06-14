@@ -88,7 +88,7 @@ class TraceTest extends TestCase
 
         $serialised = $trace->jsonSerialize();
 
-        $this->assertEquals('AWS::ECS::Container', $serialised['aws']['originName']);
+        $this->assertEquals('AWS::ECS::Container', $serialised['origin']);
         $this->assertArrayHasKey('container', $serialised['aws']['ecs']);
         $this->assertIsString($serialised['aws']['ecs']['container']);
     }

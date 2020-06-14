@@ -345,6 +345,10 @@ class Segment implements JsonSerializable
     {
         $this->aws = array_merge_recursive($this->aws, $plugin->getData());
 
+        if (isset($this->aws['origin'])) {
+            $this->setOrigin($this->aws['origin']);
+        }
+
         return $this;
     }
 

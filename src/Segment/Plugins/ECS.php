@@ -20,7 +20,7 @@ class ECS implements Plugin
             'ecs' => [
                 'container' => gethostname()
             ],
-            'originName' => 'AWS::ECS::Container'
+            'origin' => 'AWS::ECS::Container'
         ];
     }
 }
