@@ -145,4 +145,15 @@ class TraceTest extends TestCase
         $this->assertTrue($trace->isSampled());
         $this->assertEquals($parentId, $trace->jsonSerialize()['parent_id']);
     }
+
+    public function testGivenParentHeaderGetsHeaderForFutureRequests()
+    {
+        $traceId = '1-ab3169f3-1b7f38ac63d9037ef1843ca4';
+        $parentId = '1234567890';
+
+        $trace = new Trace();
+        $trace->setTraceHeader("Root=$traceId;Sampled=1;Parent=$parentId");
+
+        $this->assertEquals("Root=$traceId;Parent=$traceId;Sampled=1", $trace->getAmazonTraceHeader());
+    }
 }

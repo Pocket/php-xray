@@ -166,6 +166,19 @@ class Trace extends Segment
         return array_filter($data);
     }
 
+    /**
+     * Gets a trace header value that we can use to put on all future HTTP Requests
+     * Put in `X-Amzn-Trace-Id`
+     *
+     * @return string
+     */
+    public function getAmazonTraceHeader()
+    {
+        return 'Root=' . $this->getTraceId() . ';' .
+            'Parent=' . $this->getTraceId() . ';' .
+            'Sampled=' . ($this->isSampled() ? '1' : '0');
+    }
+
     private function generateTraceId()
     {
         $startHex = dechex((int)$this->startTime);
