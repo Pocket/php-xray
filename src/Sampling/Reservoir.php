@@ -56,13 +56,12 @@ class Reservoir
      * Should the sampler borrow or take from the reservoir.
      * And if so lets tell upstream what we did.
      *
+     * @param int $now seconds unix timestamp
      * @param $canBorrow
      * @return bool|string
      */
-    public function borrowOrTake($canBorrow)
+    public function borrowOrTake($now, $canBorrow)
     {
-        $now = time();
-
         //Reset the counters to the current seconds if we need to.
         $this->adjustThisSec($now);
 

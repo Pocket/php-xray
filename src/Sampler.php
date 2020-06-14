@@ -26,11 +26,12 @@ class Sampler
      */
     public function shouldSample(Trace $trace)
     {
+        $now = time();
         // Match the trace against a rule.
         $matchedRule = $this->getMatchedRule($trace);
 
         if ($matchedRule !== null) {
-            return $this->processMatchedRule($matchedRule);
+            return $this->processMatchedRule($matchedRule, $now);
         } else {
             // TODO: Add a local sampler if we care, general consensus is if we can't load rules, dont sample
             //'No effective centralized sampling rule match. Fallback to local rules.'
@@ -65,10 +66,11 @@ class Sampler
      *  3. Return if we should sample based on the quotas
      *
      * @param Rule $rule
+     * @param int $now (unix timestamp in sec)
      * @return bool|string
-     * @throws \Exception
+     * @throws InvalidArgumentException
      */
-    private function processMatchedRule(Rule $rule)
+    private function processMatchedRule(Rule $rule, $now)
     {
 
         //As long as a rule is matched we increment request counter.
@@ -79,7 +81,7 @@ class Sampler
         $sample = true;
 
         // We check if we can borrow or take from reservoir first.
-        $decision = $reservoir->borrowOrTake($rule->canBorrow());
+        $decision = $reservoir->borrowOrTake($now, $rule->canBorrow());
         if ($decision === 'borrow') {
             $rule->incrementBorrowedCount();
         } elseif ($decision === 'take') {
