@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Pkerrigan\Xray\Segment\Plugins;
 
 /**
