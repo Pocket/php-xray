@@ -48,7 +48,9 @@ class AwsSdkTargetRepository
                 ->setRate($targetDocumentArray['FixedRate'])
                 ->setInterval($targetDocumentArray['Interval'])
                 ->setQuota($targetDocumentArray['ReservoirQuota'])
-                ->setTtl($targetDocumentArray['ReservoirQuotaTTL']->getTimestamp());
+                ->setTtl(isset($targetDocumentArray['ReservoirQuotaTTL']) ?
+                    $targetDocumentArray['ReservoirQuotaTTL']->getTimestamp() :
+                    null);
         }
 
         return $targetDocuments;
