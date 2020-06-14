@@ -23,13 +23,13 @@ The `TraceService` is a facade that takes care of downloading sampling rules fro
 
 ```php
 $xrayClient = new \Aws\XRay\XRayClient($config);
-$samplingRuleRepository = new AwsSdkSamplingRuleRepository($xrayClient);
+$samplingRuleRepository = new \Pkerrigan\Xray\Sampling\RuleRepository\AwsSdkRuleRepository($xrayClient);
 ```
 
 Applications will most likely need to download this information very often, so it is recommended (but optional) to cache it. You will need to provide any PSR compliant cache implementation and, since there are [plenty of other libraries](https://packagist.org/providers/psr/simple-cache-implementation) focusing on that, you will have to install and configure your preferred caching implementation yourself. Then wrap the sampling rule repository in a cache implementation:
 
 ```php
-$cachedSamplingRuleRepository = new CachedSamplingRuleRepository($samplingRuleRepository, $psrCacheImplementation);
+$cachedSamplingRuleRepository = new \Pkerrigan\Xray\Sampling\RuleRepository\CachedRuleRepository($samplingRuleRepository, $psrCacheImplementation);
 ```
 
 Lastly, create the `TraceService`. By default only submitting via the AWS X-Ray daemon is supported:

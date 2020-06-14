@@ -2,9 +2,6 @@
 
 namespace Pkerrigan\Xray;
 
-use Pkerrigan\Xray\Sampling\RuleMatcher;
-use Pkerrigan\Xray\Sampling\RuleRepository\RuleRepository;
-use Pkerrigan\Xray\Submission\DaemonSegmentSubmitter;
 use Pkerrigan\Xray\Submission\SegmentSubmitter;
 
 /**
@@ -16,30 +13,45 @@ use Pkerrigan\Xray\Submission\SegmentSubmitter;
 class TraceService
 {
 
-    /** @var RuleRepository */
-    private $samplingRuleRepository;
 
-    /** @var SegmentSubmitter */
+    /**
+     * @var SegmentSubmitter
+     */
     private $segmentSubmitter;
+
+    /**
+     * @var Sampler
+     */
+    private $sampler;
 
 
     public function __construct(
-        RuleRepository $samplingRuleRepository,
-        SegmentSubmitter $segmentSubmitter = null
+        Sampler $sampler,
+        SegmentSubmitter $segmentSubmitter
     ) {
-        $this->samplingRuleRepository = $samplingRuleRepository;
-        $this->segmentSubmitter = ($segmentSubmitter !== null) ? $segmentSubmitter : new DaemonSegmentSubmitter();
+        $this->segmentSubmitter = $segmentSubmitter;
+        $this->sampler = $sampler;
     }
 
+    /**
+     * Adds a sampling decision to the Trace
+     * @param Trace $trace
+     * @return Trace
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
+    public function addSamplingDecision(Trace $trace)
+    {
+        return $trace->setSampled($this->sampler->shouldSample($trace));
+    }
+
+
+    /**
+     * Submits a trace without deciding the sampling
+     * @param Trace $trace
+     */
     public function submitTrace(Trace $trace)
     {
-        $samplingRules = $this->samplingRuleRepository->getAll();
-        $samplingRule = RuleMatcher::matchFirst($trace, $samplingRules);
-
-        $isSampled = $samplingRule !== null && Utils::randomPossibility($samplingRule->getFixedRate() * 100);
-        $trace->setSampled($isSampled);
-
-        if ($isSampled) {
+        if ($trace->isSampled()) {
             $this->segmentSubmitter->submitSegment($trace);
         }
     }
