@@ -4,6 +4,7 @@ namespace Pkerrigan\Xray\Sampling;
 
 use Pkerrigan\Xray\Utils;
 use Psr\SimpleCache\CacheInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 
 /**
  * Manages state. In most other multi-threaded applications this is the runtime process.
@@ -30,7 +31,7 @@ class StateManager
      * Gets a merged rule for a rule
      * @param Rule $rule
      * @return Rule
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function updateRule(Rule $rule)
     {
@@ -46,7 +47,7 @@ class StateManager
      * Gets a rule from a cache key
      * @param string $cacheKey
      * @return Rule
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function getRule($cacheKey)
     {
@@ -60,11 +61,14 @@ class StateManager
     /**
      * Saves a Rule
      * @param Rule $rule
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
+     * @throws CacheError
      */
     public function saveRule(Rule $rule)
     {
-        $this->cache->set($rule->getCacheKey(), $rule);
+        if (!$this->cache->set($rule->getCacheKey(), $rule)) {
+            throw new CacheError("Failed to save rule " . $rule->getName());
+        }
     }
 
     /**
@@ -84,6 +88,8 @@ class StateManager
     /**
      * Gets a cached client id for this app process
      * @return string
+     * @throws CacheError
+     * @throws InvalidArgumentException
      */
     public function getClientInstanceId()
     {
@@ -92,7 +98,9 @@ class StateManager
         }
 
         $clientID = bin2hex(random_bytes(12));
-        $this->cache->set(self::CLIENT_ID_CACHE, $clientID);
+        if (!$this->cache->set(self::CLIENT_ID_CACHE, $clientID)) {
+            throw new CacheError("Failed to save client id ${$clientID}");
+        }
         return $clientID;
     }
 }
