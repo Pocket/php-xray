@@ -46,4 +46,15 @@ class Utils
     {
         return random_int(0, 99) < $percentage;
     }
+
+    /**
+     * This strips out invalid characters from memcached keys
+     *
+     * @param $key
+     * @return string
+     */
+    public static function stripInvalidCharacters($key)
+    {
+        return preg_replace("/[\{\}\(\)\/\\\@:]/", '', $key);
+    }
 }

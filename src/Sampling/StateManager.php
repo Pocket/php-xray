@@ -2,6 +2,7 @@
 
 namespace Pkerrigan\Xray\Sampling;
 
+use Pkerrigan\Xray\Utils;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -49,6 +50,7 @@ class StateManager
      */
     public function getRule($cacheKey)
     {
+        $cacheKey = Utils::stripInvalidCharacters($cacheKey);
         if ($this->cache->has($cacheKey)) {
             return $this->cache->get($cacheKey);
         }

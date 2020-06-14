@@ -14,7 +14,7 @@ use Psr\SimpleCache\CacheInterface;
 class CachedRuleRepository implements RuleRepository
 {
 
-    const CACHE_KEY = 'Pkerrigan\\Xray\\Sampling\Rules';
+    const CACHE_KEY = 'PkerriganXraySamplingRules';
 
     /** @var RuleRepository */
     private $samplingRuleRepository;

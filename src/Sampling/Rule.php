@@ -2,6 +2,8 @@
 
 namespace Pkerrigan\Xray\Sampling;
 
+use Pkerrigan\Xray\Utils;
+
 class Rule
 {
     /**
@@ -489,7 +491,7 @@ class Rule
      */
     public function getCacheKey()
     {
-        return $this->getName();
+        return Utils::stripInvalidCharacters($this->getName());
     }
 
 
