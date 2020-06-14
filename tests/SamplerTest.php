@@ -70,6 +70,10 @@ class SamplerTest extends TestCase
             ->method('getAllRules')
             ->willReturn([$rule]);
 
+        $samplerCache
+            ->expects($this->once())
+            ->method('saveRule');
+
         $sampler = new Sampler($samplerCache);
         $this->assertTrue($sampler->shouldSample(
             (new Trace())
@@ -101,6 +105,10 @@ class SamplerTest extends TestCase
             ->expects($this->exactly(2))
             ->method('getAllRules')
             ->willReturn([$rule]);
+
+        $samplerCache
+            ->expects($this->exactly(2))
+            ->method('saveRule');
 
         $sampler = new Sampler($samplerCache);
         $this->assertTrue($sampler->shouldSample(
