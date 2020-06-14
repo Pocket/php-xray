@@ -82,7 +82,7 @@ class TraceTest extends TestCase
     {
         $trace = new Trace();
         $trace->setName('Test trace')
-            ->addPluginData(new ECS())
+            ->addECSPlugin()
             ->begin()
             ->end();
 

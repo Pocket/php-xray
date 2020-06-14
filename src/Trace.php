@@ -3,6 +3,7 @@
 namespace Pkerrigan\Xray;
 
 use Pkerrigan\Xray\Segment\HttpTrait;
+use Pkerrigan\Xray\Segment\Plugins\ECS;
 use Pkerrigan\Xray\Segment\Segment;
 
 /**
@@ -137,6 +138,15 @@ class Trace extends Segment
         }
 
         return $this;
+    }
+
+    /**
+     * Helper function to add ECS Plugin data
+     * @return Trace
+     */
+    public function addECSPlugin()
+    {
+        return $this->addPluginData(new ECS());
     }
 
     /**
