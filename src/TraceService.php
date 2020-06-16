@@ -3,6 +3,8 @@
 namespace Pkerrigan\Xray;
 
 use Pkerrigan\Xray\Submission\SegmentSubmitter;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 
 /**
  * This layer sits ontop of the segment submitter to control which traces are submitted
@@ -28,7 +30,8 @@ class TraceService
     public function __construct(
         Sampler $sampler,
         SegmentSubmitter $segmentSubmitter
-    ) {
+    )
+    {
         $this->segmentSubmitter = $segmentSubmitter;
         $this->sampler = $sampler;
     }
@@ -36,8 +39,9 @@ class TraceService
     /**
      * Adds a sampling decision to the Trace
      * @param Trace $trace
+     * @param ServerRequestInterface $request
      * @return Trace
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function addSamplingDecision(Trace $trace)
     {
@@ -47,13 +51,37 @@ class TraceService
             return $trace;
         }
 
-        // There is a parent id so that means the parent should have set the sampling decision.
-        if ($trace->getParentId() !== null) {
-            return $trace;
+        return $trace->setSampled($this->sampler->shouldSample($trace));
+    }
+
+    /**
+     * Adds the sampling decision with a request object
+     * @param Trace $trace
+     * @param ServerRequestInterface $request
+     * @return Trace
+     * @throws InvalidArgumentException
+     */
+    public function addSamplingDecisionWithRequest(Trace $trace, ServerRequestInterface $request)
+    {
+        $uri = $request->getUri();
+        $amazonHeader = $request->getHeaderLine('x-amzn-trace-id');
+
+        $trace = $trace
+            ->setTraceHeader($amazonHeader)
+            ->setName($request->getUri()->getHost())
+            ->setUrl(
+                $uri->getScheme() . $uri->getAuthority() . $uri->getHost() . $uri->getPath() . $uri->getFragment()
+            ) //Gets the scheme, host and path without params
+            ->setMethod($request->getMethod())
+            ->setUserAgent($request->getHeaderLine('user-agent'))
+            ->setClientIpAddress($request->getServerParams()['REMOTE_ADDR']);
+
+        $headerVariables = Utils::getHeaderParts($amazonHeader);
+        if ($headerVariables !== null && isset($headerVariables['Sampled'])) {
+            return $trace->setSampled(boolval($headerVariables['Sampled']));
         }
 
-
-        return $trace->setSampled($this->sampler->shouldSample($trace));
+        return $this->addSamplingDecision($trace);
     }
 
 

@@ -57,4 +57,20 @@ class Utils
     {
         return preg_replace("/[\{\}\(\)\/\\\@:]/", '', $key);
     }
+
+    public static function getHeaderParts($traceHeader)
+    {
+        if (is_null($traceHeader)) {
+            return null;
+        }
+
+        $parts = explode(';', $traceHeader);
+
+        $variables = array_map(function ($str) {
+            return explode('=', $str);
+        }, $parts);
+
+        $variables = array_column($variables, 1, 0);
+        return $variables;
+    }
 }

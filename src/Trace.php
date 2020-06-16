@@ -50,17 +50,11 @@ class Trace extends Segment
      */
     public function setTraceHeader($traceHeader = null)
     {
-        if (is_null($traceHeader)) {
+        $variables = Utils::getHeaderParts($traceHeader);
+
+        if (is_null($variables) || empty($traceHeader)) {
             return $this;
         }
-
-        $parts = explode(';', $traceHeader);
-
-        $variables = array_map(function ($str) {
-            return explode('=', $str);
-        }, $parts);
-
-        $variables = array_column($variables, 1, 0);
 
         if (isset($variables['Root'])) {
             $this->setTraceId($variables['Root']);
