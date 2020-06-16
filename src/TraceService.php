@@ -69,7 +69,7 @@ class TraceService
             ->setTraceHeader($amazonHeader)
             ->setName($request->getUri()->getHost())
             ->setUrl(
-                $uri->getScheme() . $uri->getAuthority() . $uri->getHost() . $uri->getPath() . $uri->getFragment()
+                $uri->getScheme() .'://'. $uri->getAuthority() . $uri->getHost() . $uri->getPath() . $uri->getFragment()
             ) //Gets the scheme, host and path without params
             ->setMethod($request->getMethod())
             ->setUserAgent($request->getHeaderLine('user-agent'))
