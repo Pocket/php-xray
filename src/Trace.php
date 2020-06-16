@@ -168,16 +168,31 @@ class Trace extends Segment
      */
     public function getAmazonTraceHeader()
     {
-        return 'Root=' . $this->getTraceId() . ';' .
+        return 'Root=' . $this->generateId() . ';' .
             'Parent=' . $this->getTraceId() . ';' .
             'Sampled=' . ($this->isSampled() ? '1' : '0');
     }
 
-    private function generateTraceId()
+    /**
+     * Generates an amazon id.
+     * @return string
+     * @throws \Exception
+     */
+    private function generateId()
     {
+
         $startHex = dechex((int)$this->startTime);
         $uuid = bin2hex(random_bytes(12));
 
-        $this->setTraceId("1-{$startHex}-{$uuid}");
+        return "1-{$startHex}-{$uuid}";
+    }
+
+    /**
+     * Sets a new generated amazon id.
+     * @throws \Exception
+     */
+    private function generateTraceId()
+    {
+        $this->setTraceId($this->generateId());
     }
 }
