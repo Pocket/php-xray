@@ -297,6 +297,14 @@ class Segment implements JsonSerializable
     }
 
     /**
+     * @return string
+     */
+    public function getParentId()
+    {
+        return $this->parentId;
+    }
+
+    /**
      * @param string $traceId
      * @return static
      */
