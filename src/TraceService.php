@@ -69,11 +69,11 @@ class TraceService
             ->setTraceHeader($amazonHeader)
             ->setName($request->getUri()->getHost())
             ->setUrl(
-                $uri->getScheme() .'://'. $uri->getHost() . $uri->getPath() . $uri->getFragment()
+                $uri->getScheme() . '://' . $uri->getHost() . $uri->getPath() . $uri->getFragment()
             ) //Gets the scheme, host and path without params
             ->setMethod($request->getMethod())
             ->setUserAgent($request->getHeaderLine('user-agent'))
-            ->setClientIpAddress($request->getServerParams()['REMOTE_ADDR']);
+            ->setClientIpAddress($this->getClientAddress($request));
 
         $headerVariables = Utils::getHeaderParts($amazonHeader);
         if ($headerVariables !== null && isset($headerVariables['Sampled'])) {
@@ -81,6 +81,16 @@ class TraceService
         }
 
         return $this->addSamplingDecision($trace);
+    }
+
+    public function getClientAddress(ServerRequestInterface $request)
+    {
+        $forwardedFor = $request->getHeaderLine('x-forwarded-for');
+        if (!empty($forwardedFor)) {
+            return $forwardedFor;
+        }
+
+        return $request->getServerParams()['REMOTE_ADDR'];
     }
 
 
