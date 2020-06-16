@@ -30,8 +30,7 @@ class TraceService
     public function __construct(
         Sampler $sampler,
         SegmentSubmitter $segmentSubmitter
-    )
-    {
+    ) {
         $this->segmentSubmitter = $segmentSubmitter;
         $this->sampler = $sampler;
     }
