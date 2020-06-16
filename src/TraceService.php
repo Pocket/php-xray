@@ -41,6 +41,18 @@ class TraceService
      */
     public function addSamplingDecision(Trace $trace)
     {
+        // Trace is already sampled.
+        // Return true.
+        if ($trace->isSampled()) {
+            return $trace;
+        }
+
+        // There is a parent id so that means the parent should have set the sampling decision.
+        if ($trace->getParentId() !== null) {
+            return $trace;
+        }
+
+
         return $trace->setSampled($this->sampler->shouldSample($trace));
     }
 
