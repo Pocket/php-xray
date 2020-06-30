@@ -16,6 +16,13 @@ class SamplerCache
 {
 
     /**
+     * The interval in seconds that we should update the target rule cache
+     *
+     * Node sdk updates every 10 sec in the background
+     */
+    const TARGET_UPDATE_INTERVAL = 10;
+
+    /**
      * @var RuleRepository
      */
     private $ruleRepository;
@@ -77,12 +84,16 @@ class SamplerCache
      */
     private function refreshTargets()
     {
+        if (!$this->shouldUpdateTargets()) {
+            return;
+        }
+
         $segment = Trace::getInstance()->startSubsegment('SamplerCache::refreshTargets');
 
-        //TODO: see if we should report data (10 sec)
         $candidates = $this->getCandidates();
         if (!count($candidates)) {
             //No data to report
+            $segment->end();
             return;
         }
 
@@ -92,7 +103,18 @@ class SamplerCache
             $this->updateRuleQuota($target);
         }
 
+        $this->stateManager->setLastTargetUpdate(time());
+
         $segment->end();
+    }
+
+    private function shouldUpdateTargets()
+    {
+        $segment = Trace::getInstance()->startSubsegment('SamplerCache::shouldUpdateTargets');
+        $shouldUpdate = ($this->stateManager->getLastTargetUpdate() + 10) > time();
+        $segment->end();
+
+        return $shouldUpdate;
     }
 
 

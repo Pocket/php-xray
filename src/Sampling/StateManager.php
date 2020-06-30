@@ -16,6 +16,7 @@ use Psr\SimpleCache\InvalidArgumentException;
 class StateManager
 {
     const CLIENT_ID_CACHE = 'StateManagerClientID';
+    const LAST_TARGET_UPDATE = 'StateManagerLastTargetUpdate';
 
     /**
      * @var CacheInterface
@@ -25,6 +26,43 @@ class StateManager
     public function __construct(CacheInterface $cache)
     {
         $this->cache = $cache;
+    }
+
+    /**
+     * Gets the timestamp of the last target update
+     * @return int
+     * @throws InvalidArgumentException
+     */
+    public function getLastTargetUpdate()
+    {
+        $segment = Trace::getInstance()->startSubsegment('StateManager::getLastTargetUpdate');
+
+        $rule = null;
+        if ($this->cache->has(self::LAST_TARGET_UPDATE)) {
+            $targetUpdate = $this->cache->get(self::LAST_TARGET_UPDATE);
+            $segment->end();
+            return $targetUpdate;
+        }
+        $segment->end();
+        return 0;
+    }
+
+    /**
+     * Sets the timestamp of the last target update
+     * @param $lastTargetUpdate
+     * @return void
+     * @throws CacheError
+     * @throws InvalidArgumentException
+     */
+    public function setLastTargetUpdate($lastTargetUpdate)
+    {
+        $segment = Trace::getInstance()->startSubsegment('StateManager::setLastTargetUpdate');
+
+        $rule = null;
+        if (!$this->cache->set(self::LAST_TARGET_UPDATE, $lastTargetUpdate)) {
+            throw new CacheError("Failed to save last target update");
+        }
+        $segment->end();
     }
 
 
