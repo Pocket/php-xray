@@ -57,7 +57,7 @@ class Sampler
     {
         $segment = $trace->startSubsegment('Sampler::getMatchedRule');
 
-        if (($rule = RuleMatcher::matchFirst($trace, $this->samplerCache->getAllSavedRules())) !== null) {
+        if (($rule = RuleMatcher::matchFirst($trace, $this->samplerCache->getAllRules())) !== null) {
             $segment->end();
             return $rule;
         }
