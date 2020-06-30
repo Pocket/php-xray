@@ -2,6 +2,7 @@
 
 namespace Pkerrigan\Xray;
 
+use Pkerrigan\Xray\Segment\Segment;
 use Pkerrigan\Xray\Submission\SegmentSubmitter;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\SimpleCache\InvalidArgumentException;
@@ -38,19 +39,26 @@ class TraceService
     /**
      * Adds a sampling decision to the Trace
      * @param Trace $trace
-     * @param ServerRequestInterface $request
      * @return Trace
      * @throws InvalidArgumentException
      */
     public function addSamplingDecision(Trace $trace)
     {
+        $segment = (new Segment())
+            ->begin()
+            ->setName('TraceService::addSamplingDecision');
+        $trace->addSubsegment($segment);
+
         // Trace is already sampled.
         // Return true.
         if ($trace->isSampled()) {
+            $segment->end();
             return $trace;
         }
 
-        return $trace->setSampled($this->sampler->shouldSample($trace));
+        $trace = $trace->setSampled($this->sampler->shouldSample($trace));
+        $segment->end();
+        return $trace;
     }
 
     /**
@@ -62,6 +70,11 @@ class TraceService
      */
     public function addSamplingDecisionWithRequest(Trace $trace, ServerRequestInterface $request)
     {
+        $segment = (new Segment())
+            ->begin()
+            ->setName('TraceService::addSamplingDecisionWithRequest');
+        $trace->addSubsegment($segment);
+
         $uri = $request->getUri();
         $amazonHeader = $request->getHeaderLine('x-amzn-trace-id');
 
@@ -80,7 +93,10 @@ class TraceService
             return $trace->setSampled(boolval($headerVariables['Sampled']));
         }
 
-        return $this->addSamplingDecision($trace);
+        $decision = $this->addSamplingDecision($trace);
+        $segment->end();
+
+        return $decision;
     }
 
     public function getClientAddress(ServerRequestInterface $request)

@@ -5,6 +5,7 @@ namespace Pkerrigan\Xray;
 use Pkerrigan\Xray\Sampling\Rule;
 use Pkerrigan\Xray\Sampling\RuleMatcher;
 use Pkerrigan\Xray\Sampling\SamplerCache;
+use Pkerrigan\Xray\Segment\Segment;
 use Psr\SimpleCache\InvalidArgumentException;
 
 class Sampler
@@ -22,17 +23,24 @@ class Sampler
     /**
      * @param Trace $trace
      * @return bool|string
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function shouldSample(Trace $trace)
     {
+        $segment = (new Segment())
+            ->begin()
+            ->setName('Sampler::shouldSample');
+        $trace->addSubsegment($segment);
+
         $now = time();
         // Match the trace against a rule.
         $matchedRule = $this->getMatchedRule($trace);
 
         if ($matchedRule !== null) {
             $trace->setMatchedRule($matchedRule);
-            return $this->processMatchedRule($matchedRule, $now);
+            $response = $this->processMatchedRule($matchedRule, $now, $trace);
+            $segment->end();
+            return $response;
         } else {
             // TODO: Add a local sampler if we care, general consensus is if we can't load rules, dont sample
             //'No effective centralized sampling rule match. Fallback to local rules.'
@@ -49,10 +57,17 @@ class Sampler
      */
     public function getMatchedRule(Trace $trace)
     {
+        $segment = (new Segment())
+            ->begin()
+            ->setName('Sampler::getMatchedRule');
+        $trace->addSubsegment($segment);
+
         if (($rule = RuleMatcher::matchFirst($trace, $this->samplerCache->getAllRules())) !== null) {
+            $segment->end();
             return $rule;
         }
 
+        $segment->end();
         return null;
     }
 
@@ -68,11 +83,16 @@ class Sampler
      *
      * @param Rule $rule
      * @param int $now (unix timestamp in sec)
+     * @param Trace $trace
      * @return bool|string
      * @throws InvalidArgumentException
      */
-    private function processMatchedRule(Rule $rule, $now)
+    private function processMatchedRule(Rule $rule, $now, Trace $trace)
     {
+        $segment = (new Segment())
+            ->begin()
+            ->setName('Sampler::processMatchedRule');
+        $trace->addSubsegment($segment);
 
         //As long as a rule is matched we increment request counter.
         $rule->incrementRequestCount();
@@ -96,6 +116,7 @@ class Sampler
 
         $this->samplerCache->saveRule($rule);
 
+        $segment->end();
         return $sample;
     }
 }
