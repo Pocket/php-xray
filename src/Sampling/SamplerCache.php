@@ -111,7 +111,7 @@ class SamplerCache
     private function shouldUpdateTargets()
     {
         $segment = Trace::getInstance()->startSubsegment('SamplerCache::shouldUpdateTargets');
-        $shouldUpdate = ($this->stateManager->getLastTargetUpdate() + 10) > time();
+        $shouldUpdate = time() > ($this->stateManager->getLastTargetUpdate() + 10);
         $segment->end();
 
         return $shouldUpdate;
