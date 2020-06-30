@@ -5,6 +5,7 @@ namespace Pkerrigan\Xray\Sampling;
 use Pkerrigan\Xray\Sampling\RuleRepository\RuleRepository;
 use Pkerrigan\Xray\Sampling\TargetRepository\AwsSdkTargetRepository;
 use Pkerrigan\Xray\Sampling\TargetRepository\Target;
+use Pkerrigan\Xray\Trace;
 use Psr\SimpleCache\InvalidArgumentException;
 
 /**
@@ -44,7 +45,23 @@ class SamplerCache
      */
     public function getAllRules()
     {
-        return $this->stateManager->getAllSavedRulesFromRules($this->ruleRepository->getAll());
+        $segment = Trace::getInstance()->startSubsegment('SamplerCache::getAllRules');
+        $rules = $this->ruleRepository->getAll();
+        $segment->end();
+        return $rules;
+    }
+
+
+    /**
+     * @return Rule[]
+     * @throws InvalidArgumentException
+     */
+    public function getAllSavedRules()
+    {
+        $segment = Trace::getInstance()->startSubsegment('SamplerCache::getAllSavedRules');
+        $rules = $this->stateManager->getAllSavedRulesFromRules($this->ruleRepository->getAll());
+        $segment->end();
+        return $rules;
     }
 
 
@@ -56,8 +73,10 @@ class SamplerCache
      */
     public function saveRule(Rule $rule)
     {
+        $segment = Trace::getInstance()->startSubsegment('SamplerCache::saveRule');
         $this->stateManager->saveRule($rule);
         $this->refreshTargets();
+        $segment->end();
     }
 
 
@@ -71,6 +90,8 @@ class SamplerCache
      */
     private function refreshTargets()
     {
+        $segment = Trace::getInstance()->startSubsegment('SamplerCache::refreshTargets');
+
         //TODO: see if we should report data (10 sec)
         $candidates = $this->getCandidates();
         if (!count($candidates)) {
@@ -83,6 +104,8 @@ class SamplerCache
         foreach ($targets as $target) {
             $this->updateRuleQuota($target);
         }
+
+        $segment->end();
     }
 
 
@@ -91,7 +114,8 @@ class SamplerCache
     // 2. The rule is never matched.
     private function getCandidates()
     {
-        $rules = $this->getAllRules();
+        $segment = Trace::getInstance()->startSubsegment('SamplerCache::getCandidates');
+        $rules = $this->getAllSavedRules();
 
         $candidates = [];
         foreach ($rules as $rule) {
@@ -100,6 +124,7 @@ class SamplerCache
             }
         }
 
+        $segment->end();
         return $candidates;
     }
 
@@ -110,6 +135,7 @@ class SamplerCache
      */
     private function updateRuleQuota(Target $target)
     {
+        $segment = Trace::getInstance()->startSubsegment('SamplerCache::updateRuleQuota');
         $rule = $this->stateManager->getRule($target->getRuleName());
 
         if ($rule === null) {
@@ -126,5 +152,6 @@ class SamplerCache
 
         $rule->setFixedRate($target->getRate());
         $this->stateManager->saveRule($rule);
+        $segment->end();
     }
 }

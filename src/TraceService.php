@@ -44,10 +44,8 @@ class TraceService
      */
     public function addSamplingDecision(Trace $trace)
     {
-        $segment = (new Segment())
-            ->begin()
-            ->setName('TraceService::addSamplingDecision');
-        $trace->addSubsegment($segment);
+        Trace::setInstance($trace);
+        $segment = $trace->startSubsegment('TraceService::addSamplingDecision');
 
         // Trace is already sampled.
         // Return true.
@@ -70,11 +68,6 @@ class TraceService
      */
     public function addSamplingDecisionWithRequest(Trace $trace, ServerRequestInterface $request)
     {
-        $segment = (new Segment())
-            ->begin()
-            ->setName('TraceService::addSamplingDecisionWithRequest');
-        $trace->addSubsegment($segment);
-
         $uri = $request->getUri();
         $amazonHeader = $request->getHeaderLine('x-amzn-trace-id');
 
@@ -93,10 +86,7 @@ class TraceService
             return $trace->setSampled(boolval($headerVariables['Sampled']));
         }
 
-        $decision = $this->addSamplingDecision($trace);
-        $segment->end();
-
-        return $decision;
+        return $this->addSamplingDecision($trace);
     }
 
     public function getClientAddress(ServerRequestInterface $request)

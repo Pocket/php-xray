@@ -27,10 +27,7 @@ class Sampler
      */
     public function shouldSample(Trace $trace)
     {
-        $segment = (new Segment())
-            ->begin()
-            ->setName('Sampler::shouldSample');
-        $trace->addSubsegment($segment);
+        $segment = $trace->startSubsegment('Sampler::shouldSample');
 
         $now = time();
         // Match the trace against a rule.
@@ -45,6 +42,7 @@ class Sampler
             // TODO: Add a local sampler if we care, general consensus is if we can't load rules, dont sample
             //'No effective centralized sampling rule match. Fallback to local rules.'
             //return this.localSampler.shouldSample(sampleRequest);
+            $segment->end();
             return false;
         }
     }
@@ -57,10 +55,7 @@ class Sampler
      */
     public function getMatchedRule(Trace $trace)
     {
-        $segment = (new Segment())
-            ->begin()
-            ->setName('Sampler::getMatchedRule');
-        $trace->addSubsegment($segment);
+        $segment = $trace->startSubsegment('Sampler::getMatchedRule');
 
         if (($rule = RuleMatcher::matchFirst($trace, $this->samplerCache->getAllRules())) !== null) {
             $segment->end();
@@ -89,10 +84,7 @@ class Sampler
      */
     private function processMatchedRule(Rule $rule, $now, Trace $trace)
     {
-        $segment = (new Segment())
-            ->begin()
-            ->setName('Sampler::processMatchedRule');
-        $trace->addSubsegment($segment);
+        $segment = $trace->startSubsegment('Sampler::processMatchedRule');
 
         //As long as a rule is matched we increment request counter.
         $rule->incrementRequestCount();
@@ -114,7 +106,7 @@ class Sampler
             $sample = false;
         }
 
-        $this->samplerCache->saveRule($rule);
+        $this->samplerCache->saveRule($rule, $trace);
 
         $segment->end();
         return $sample;
