@@ -144,6 +144,20 @@ class Trace extends Segment
     }
 
     /**
+     * @param Segment $subsegment
+     * @return static
+     */
+    public function addSubsegment(Segment $subsegment)
+    {
+        $segment = $this->getCurrentSegment();
+        if ($segment === $this) {
+            return parent::addSubsegment($subsegment);
+        }
+
+        return $segment->addSubsegment($subsegment);
+    }
+
+    /**
      * @inheritdoc
      */
     public function jsonSerialize()
