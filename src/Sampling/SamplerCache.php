@@ -46,7 +46,7 @@ class SamplerCache
     public function getAllSavedRules()
     {
         $segment = Trace::getInstance()->startSubsegment('SamplerCache::getAllSavedRules');
-        $rules = $this->stateManager->getAllSavedRulesFromRules($this->ruleRepository->getAll()());
+        $rules = $this->stateManager->getAllSavedRulesFromRules($this->ruleRepository->getAll());
         $segment->end();
         return $rules;
     }
