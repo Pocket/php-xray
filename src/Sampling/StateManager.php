@@ -74,7 +74,6 @@ class StateManager
     public function saveRule(Rule $rule)
     {
         $segment = Trace::getInstance()->startSubsegment('StateManager::saveRule');
-        $rule = $this->getRule($rule->getCacheKey())->merge($rule);
         if (!$this->cache->set($rule->getCacheKey(), $rule)) {
             throw new CacheError("Failed to save rule " . $rule->getName());
         }

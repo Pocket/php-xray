@@ -43,23 +43,10 @@ class SamplerCache
      * @return Rule[]
      * @throws InvalidArgumentException
      */
-    public function getAllRules()
-    {
-        $segment = Trace::getInstance()->startSubsegment('SamplerCache::getAllRules');
-        $rules = $this->ruleRepository->getAll();
-        $segment->end();
-        return $rules;
-    }
-
-
-    /**
-     * @return Rule[]
-     * @throws InvalidArgumentException
-     */
     public function getAllSavedRules()
     {
         $segment = Trace::getInstance()->startSubsegment('SamplerCache::getAllSavedRules');
-        $rules = $this->stateManager->getAllSavedRulesFromRules($this->ruleRepository->getAll());
+        $rules = $this->stateManager->getAllSavedRulesFromRules($this->ruleRepository->getAll()());
         $segment->end();
         return $rules;
     }
