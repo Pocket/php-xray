@@ -164,6 +164,8 @@ class Trace extends Segment
     {
         $segment = (new Segment())
             ->setName($name)
+            //All trace ids should be set to that of the trace
+            ->setTraceId($this->getTraceId())
             ->begin();
         $this->addSubsegment($segment);
 
@@ -211,8 +213,11 @@ class Trace extends Segment
      */
     public function getAmazonTraceHeader()
     {
-        return 'Root=' . $this->generateId() . ';' .
-            'Parent=' . $this->getTraceId() . ';' .
+        //There should always be a segment in progress if we are trying to get the amazon trace header
+        //We need the id of the current segment in order to make it the parent.
+        $segment = $this->getCurrentSegment();
+        return 'Root=' . $this->getTraceId() . ';' .
+            'Parent=' . $segment->getId() . ';' .
             'Sampled=' . ($this->isSampled() ? '1' : '0');
     }
 
