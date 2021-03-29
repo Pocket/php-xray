@@ -156,6 +156,6 @@ class TraceTest extends TestCase
 
         $newHeader = $trace->getAmazonTraceHeader();
         $this->assertStringStartsWith("Root=", $newHeader);
-        $this->assertStringEndsWith(";Parent=$traceId;Sampled=1", $newHeader);
+        $this->assertStringEndsWith(";Parent=$parentId;Sampled=1", $newHeader);
     }
 }
