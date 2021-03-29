@@ -153,9 +153,11 @@ class TraceTest extends TestCase
 
         $trace = new Trace();
         $trace->setTraceHeader("Root=$traceId;Sampled=1;Parent=$parentId");
+        $segment = $trace->getCurrentSegment();
+        $parentIdToCheck = $segment->getId();
 
         $newHeader = $trace->getAmazonTraceHeader();
         $this->assertStringStartsWith("Root=", $newHeader);
-        $this->assertStringEndsWith(";Parent=$parentId;Sampled=1", $newHeader);
+        $this->assertStringEndsWith(";Parent=$parentIdToCheck;Sampled=1", $newHeader);
     }
 }
